@@ -1,4 +1,4 @@
-" Constants: {{{
+" Variables: {{{
 
 let s:DEFAULT_OPTIONS = {
       \ 'min-width': 0,
@@ -9,7 +9,9 @@ let s:DEFAULT_OPTIONS = {
       \ 'divide-equel': 0
       \ }
 
-" }}} Constants
+let s:tabLineTabs = []
+
+" }}} Variables
 
 
 " Main Functions: {{{
@@ -175,6 +177,10 @@ function! tabline#build() "{{{
   endif
   let s:tabLineResult = s
   return s
+endfunction "}}}
+
+function! tabline#tabs() "{{{
+  return s:tabLineTabs
 endfunction "}}}
 
 " }}} Main Functions
