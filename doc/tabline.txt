@@ -15,6 +15,7 @@ CONTENTS                                                    *tabline-contents*
 INTRODUCTION                                            *tabline-introduction*
 
 Custom function for 'tabline' option.
+See |setting-tabline|.
 
 ==============================================================================
 CONFIGURATION                                          *tabline-configuration*

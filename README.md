@@ -10,3 +10,12 @@ Tabline customization.
   - Debug, testing functions.
   - Cache, expires with events. (not implemented)
   - Extra info for spared space. (not implemented)
+
+
+Similar Projects
+================
+
+- [taboo][] by @gcmt
+
+
+[taboo]: https://github.com/gcmt/taboo.vim
