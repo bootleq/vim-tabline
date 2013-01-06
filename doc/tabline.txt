@@ -9,13 +9,23 @@ Repository: https://github.com/bootleq/vim-tabline
 CONTENTS                                                    *tabline-contents*
 
     Introduction  .......................... |tabline-introduction|
+    Usage  ................................. |tabline-usage|
     Configuration  ......................... |tabline-configuration|
 
 ==============================================================================
 INTRODUCTION                                            *tabline-introduction*
 
-Custom function for 'tabline' option.
-See |setting-tabline|.
+Customize the content of tab pages line, by provide a function for 'tabline'
+option.
+
+==============================================================================
+USAGE                                                          *tabline-usage*
+
+If 'tabline' option is empty, this plugin will set 'tabline' automatically.
+
+You can set 'tabline' manually: >
+  set tabline=%!tabline#build()
+<
 
 ==============================================================================
 CONFIGURATION                                          *tabline-configuration*

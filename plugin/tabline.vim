@@ -6,7 +6,9 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 let s:old_tabline = &tabline
-set tabline=%!tabline#build()
+if empty(&tabline)
+  set tabline=%!tabline#build()
+endif
 
 
 " Default Options: {{{
