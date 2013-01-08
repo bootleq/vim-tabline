@@ -1,13 +1,18 @@
 " Variables: {{{
 
 let s:DEFAULT_OPTIONS = {
-      \ 'min-width': 0,
-      \ 'max-width': 40,
-      \ 'min-width-resized': 15,
-      \ 'scroll-off': 5,
-      \ 'ellipsis-text': '...',
-      \ 'divide-equel': 0
+      \ 'tab_min_width': 0,
+      \ 'tab_max_width': 40,
+      \ 'tab_min_shrinked_width': 15,
+      \ 'scroll_off': 5,
+      \ 'divide_equally': 0,
+      \ 'ellipsis_text': '…',
+      \ 'nofile_text': '[Scratch]',
+      \ 'new_file_text': '[New]',
+      \ 'modified_text': '+'
       \ }
+let s:OPTION_PREFIX = 'tabline_'
+lockvar! s:OPTION_PREFIX s:DEFAULT_OPTIONS
 
 let s:tabLineTabs = []
 
@@ -21,12 +26,15 @@ function! tabline#build() "{{{
   " NOTE: require Vim 7.3 strwidth() to display fullwidth text correctly.
 
   " settings
-  let tabMinWidth = 0
-  let tabMaxWidth = 40
-  let tabMinWidthResized = 15
-  let tabScrollOff = 5
-  let tabEllipsis = '…'
-  let tabDivideEquel = 0
+  let tab_min_width          = s:option('tab_min_width')
+  let tab_max_width          = s:option('tab_max_width')
+  let tab_min_shrinked_width = s:option('tab_min_shrinked_width')
+  let scroll_off             = s:option('scroll_off')
+  let divide_equally         = s:option('divide_equally')
+  let ellipsis_text          = s:option('ellipsis_text')
+  let nofile_text            = s:option('nofile_text')
+  let new_file_text          = s:option('new_file_text')
+  let modified_text          = s:option('modified_text')
 
   let s:tabLineTabs = []
 
@@ -45,9 +53,9 @@ function! tabline#build() "{{{
     let buftype = getbufvar(bufnr, '&buftype')
     if filename == ''
       if buftype == 'nofile'
-        let filename .= '[Scratch]'
+        let filename .= nofile_text
       else
-        let filename .= '[New]'
+        let filename .= new_file_text
       endif
     endif
     let split = ''
@@ -57,7 +65,7 @@ function! tabline#build() "{{{
     endif
     let flag = ''
     if getbufvar(bufnr, '&modified')  " modified
-      let flag .= '+'
+      let flag .= modified_text
     endif
     if strlen(flag) > 0 || strlen(split) > 0
       let flag .= ' '
@@ -76,25 +84,25 @@ function! tabline#build() "{{{
     unlet i
     for i in l:tabLineTabs
       let tabLength = s:CalcTabLength(i)
-      if tabLength < tabMinWidth
-        let i.filename .= repeat(' ', tabMinWidth - tabLength)
-      elseif tabMaxWidth > 0 && tabLength > tabMaxWidth
-        let reserve = tabLength - StrWidth(i.filename) + StrWidth(tabEllipsis)
-        if tabMaxWidth > reserve
-          let i.filename = StrCrop(i.filename, (tabMaxWidth - reserve), '~') . tabEllipsis
+      if tabLength < tab_min_width
+        let i.filename .= repeat(' ', tab_min_width - tabLength)
+      elseif tab_max_width > 0 && tabLength > tab_max_width
+        let reserve = tabLength - StrWidth(i.filename) + StrWidth(ellipsis_text)
+        if tab_max_width > reserve
+          let i.filename = StrCrop(i.filename, (tab_max_width - reserve), '~') . ellipsis_text
         endif
       endif
     endfor
   endif
   " 2. try divide each tab equal-width
-  if tabDivideEquel
+  if divide_equally
     if s:TabLineTotalLength(l:tabLineTabs) > &columns
-      let divideWidth = max([tabMinWidth, tabMinWidthResized, &columns / tabCount, StrWidth(tabEllipsis)])
+      let divideWidth = max([tab_min_width, tab_min_shrinked_width, &columns / tabCount, StrWidth(ellipsis_text)])
       unlet i
       for i in l:tabLineTabs
         let tabLength = s:CalcTabLength(i)
         if tabLength > divideWidth
-          let i.filename = StrCrop(i.filename, divideWidth - StrWidth(tabEllipsis), '~') . tabEllipsis
+          let i.filename = StrCrop(i.filename, divideWidth - StrWidth(ellipsis_text), '~') . ellipsis_text
         endif
       endfor
     endif
@@ -102,7 +110,7 @@ function! tabline#build() "{{{
   " 3. ensure visibility of current tab
   let rhWidth = 0
   let t = tabCount - 1
-  let rhTabStart = min([tabSel - 1, tabSel - tabScrollOff])
+  let rhTabStart = min([tabSel - 1, tabSel - scroll_off])
   while t >= max([rhTabStart, 0])
     let tab = l:tabLineTabs[t]
     let tabLength = s:CalcTabLength(tab)
@@ -119,7 +127,7 @@ function! tabline#build() "{{{
     else
       " add special flag (will be removed later) indicating that how many
       " columns could be used for last displayed tab.
-      if tabSel <= tabScrollOff || tabSel < tabCount - tabScrollOff
+      if tabSel <= scroll_off || tabSel < tabCount - scroll_off
         let tab.flag .= '>' . lastTabSpace
       endif
     endif
@@ -189,7 +197,7 @@ endfunction "}}}
 " Utils: {{{
 
 function! s:option(key) "{{{
-  return get(g:, key, get(s:DEFAULT_OPTIONS, key))
+  return get(g:, s:OPTION_PREFIX . a:key, get(s:DEFAULT_OPTIONS, a:key))
 endfunction "}}}
 
 
