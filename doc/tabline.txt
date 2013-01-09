@@ -10,6 +10,7 @@ CONTENTS                                                    *tabline-contents*
 
     Introduction  .......................... |tabline-introduction|
     Usage  ................................. |tabline-usage|
+    Functions  ....................... ..... |tabline-functions|
     Configuration  ......................... |tabline-configuration|
 
 ==============================================================================
@@ -26,6 +27,16 @@ If 'tabline' option is empty, this plugin will set 'tabline' automatically.
 You can set 'tabline' manually: >
   set tabline=%!tabline#build()
 <
+
+==============================================================================
+FUNCTIONS                                                  *tabline-functions*
+
+tabline#tabs()                               *tabline#tabs()*
+
+  Return internal |List| variable which stores information of each tabs.
+
+  Note this is not a copied variable, change its value might cause unexpected
+  behavior. Use |deepcopy()| if you need to alter them.
 
 ==============================================================================
 CONFIGURATION                                          *tabline-configuration*

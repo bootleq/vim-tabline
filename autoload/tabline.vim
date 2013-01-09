@@ -187,6 +187,7 @@ function! tabline#build() "{{{
   return s
 endfunction "}}}
 
+
 function! tabline#tabs() "{{{
   return s:tabs
 endfunction "}}}
