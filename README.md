@@ -1,15 +1,18 @@
 tabline.vim
 ===========
 
-Tabline customization.
+Tab pages line (['tabline'][], not GUI tab labels) customization.
 
-  - Change tab label with: tab number.
-  - Expose tabline info as a variable.
+  - Change tab label text with tab number, buffer name, etc.
+  - Tab min-width, max-width.
   - Extra color groups.
-  - Tab width, min/max-width config.
-  - Debug, testing functions.
-  - Cache, expires with events. (not implemented)
-  - Extra info for spared space. (not implemented)
+  - Expose tabline info as a variable.
+
+
+Status
+======
+
+Work in process, everything may change.
 
 
 Similar Projects
@@ -18,4 +21,5 @@ Similar Projects
 - [taboo][] by @gcmt
 
 
+[tabline]: http://vimdoc.sourceforge.net/htmldoc/options.html#%27tabline%27
 [taboo]: https://github.com/gcmt/taboo.vim

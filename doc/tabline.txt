@@ -24,14 +24,14 @@ USAGE                                                          *tabline-usage*
 
 If 'tabline' option is empty, this plugin will set 'tabline' automatically.
 
-You can set 'tabline' manually: >
+You can also set 'tabline' manually: >
   set tabline=%!tabline#build()
 <
 
 ==============================================================================
 FUNCTIONS                                                  *tabline-functions*
 
-tabline#tabs()                               *tabline#tabs()*
+tabline#tabs()                                                *tabline#tabs()*
 
   Return internal |List| variable which stores information of each tabs.
 
