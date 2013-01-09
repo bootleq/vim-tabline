@@ -14,7 +14,7 @@ let s:DEFAULT_OPTIONS = {
 let s:OPTION_PREFIX = 'tabline_'
 lockvar! s:OPTION_PREFIX s:DEFAULT_OPTIONS
 
-let s:tabLineTabs = []
+let s:tabs = []
 
 " }}} Variables
 
@@ -36,13 +36,13 @@ function! tabline#build() "{{{
   let new_file_text          = s:option('new_file_text')
   let modified_text          = s:option('modified_text')
 
-  let s:tabLineTabs = []
+  let s:tabs = []
 
-  let tabCount = tabpagenr('$')
-  let tabSel = tabpagenr()
+  let tab_count = tabpagenr('$')
+  let tab_current = tabpagenr()
 
-  " fill s:tabLineTabs with {n, filename, split, flag} for each tab
-  for i in range(tabCount)
+  " fill s:tabs with {n, filename, split, flag} for each tab
+  for i in range(tab_count)
     let tabnr = i + 1
     let buflist = tabpagebuflist(tabnr)
     let winnr = tabpagewinnr(tabnr)
@@ -59,9 +59,9 @@ function! tabline#build() "{{{
       endif
     endif
     let split = ''
-    let winCount = tabpagewinnr(tabnr, '$')
-    if winCount > 1   " has split windows
-      let split .= winCount
+    let window_count = tabpagewinnr(tabnr, '$')
+    if window_count > 1   " has split windows
+      let split .= window_count
     endif
     let flag = ''
     if getbufvar(bufnr, '&modified')  " modified
@@ -71,76 +71,76 @@ function! tabline#build() "{{{
       let flag .= ' '
     endif
 
-    call add(s:tabLineTabs, {'n': tabnr, 'split': split, 'flag': flag, 'filename': filename})
+    call add(s:tabs, {'n': tabnr, 'split': split, 'flag': flag, 'filename': filename})
   endfor
 
   " variables for final oupout
   let s = ''
-  let l:tabLineTabs = deepcopy(s:tabLineTabs)
+  let l:tabs = deepcopy(s:tabs)
 
   " overflow adjustment
-  " 1. apply min/max tabWidth option
-  if s:TabLineTotalLength(l:tabLineTabs) > &columns
+  " 1. apply min/max tab_width option
+  if s:total_length(l:tabs) > &columns
     unlet i
-    for i in l:tabLineTabs
-      let tabLength = s:CalcTabLength(i)
-      if tabLength < tab_min_width
-        let i.filename .= repeat(' ', tab_min_width - tabLength)
-      elseif tab_max_width > 0 && tabLength > tab_max_width
-        let reserve = tabLength - StrWidth(i.filename) + StrWidth(ellipsis_text)
+    for i in l:tabs
+      let tab_length = s:tab_length(i)
+      if tab_length < tab_min_width
+        let i.filename .= repeat(' ', tab_min_width - tab_length)
+      elseif tab_max_width > 0 && tab_length > tab_max_width
+        let reserve = tab_length - s:string_width(i.filename) + s:string_width(ellipsis_text)
         if tab_max_width > reserve
-          let i.filename = StrCrop(i.filename, (tab_max_width - reserve), '~') . ellipsis_text
+          let i.filename = s:string_truncate(i.filename, (tab_max_width - reserve), '~') . ellipsis_text
         endif
       endif
     endfor
   endif
   " 2. try divide each tab equal-width
   if divide_equally
-    if s:TabLineTotalLength(l:tabLineTabs) > &columns
-      let divideWidth = max([tab_min_width, tab_min_shrinked_width, &columns / tabCount, StrWidth(ellipsis_text)])
+    if s:total_length(l:tabs) > &columns
+      let divided_width = max([tab_min_width, tab_min_shrinked_width, &columns / tab_count, s:string_width(ellipsis_text)])
       unlet i
-      for i in l:tabLineTabs
-        let tabLength = s:CalcTabLength(i)
-        if tabLength > divideWidth
-          let i.filename = StrCrop(i.filename, divideWidth - StrWidth(ellipsis_text), '~') . ellipsis_text
+      for i in l:tabs
+        let tab_length = s:tab_length(i)
+        if tab_length > divided_width
+          let i.filename = s:string_truncate(i.filename, divided_width - s:string_width(ellipsis_text), '~') . ellipsis_text
         endif
       endfor
     endif
   endif
   " 3. ensure visibility of current tab
-  let rhWidth = 0
-  let t = tabCount - 1
-  let rhTabStart = min([tabSel - 1, tabSel - scroll_off])
-  while t >= max([rhTabStart, 0])
-    let tab = l:tabLineTabs[t]
-    let tabLength = s:CalcTabLength(tab)
-    let rhWidth += tabLength
+  let rhs_width = 0
+  let t = tab_count - 1
+  let rhs_tab_start = min([tab_current - 1, tab_current - scroll_off])
+  while t >= max([rhs_tab_start, 0])
+    let tab = l:tabs[t]
+    let tab_length = s:tab_length(tab)
+    let rhs_width += tab_length
     let t -= 1
   endwhile
-  while rhWidth >= &columns
-    let tab = l:tabLineTabs[-1]
-    let tabLength = s:CalcTabLength(tab)
-    let lastTabSpace = &columns - (rhWidth - tabLength)
-    let rhWidth -= tabLength
-    if rhWidth > &columns
-      call remove(l:tabLineTabs, -1)
+  while rhs_width >= &columns
+    let tab = l:tabs[-1]
+    let tab_length = s:tab_length(tab)
+    let last_tab_space = &columns - (rhs_width - tab_length)
+    let rhs_width -= tab_length
+    if rhs_width > &columns
+      call remove(l:tabs, -1)
     else
       " add special flag (will be removed later) indicating that how many
       " columns could be used for last displayed tab.
-      if tabSel <= scroll_off || tabSel < tabCount - scroll_off
-        let tab.flag .= '>' . lastTabSpace
+      if tab_current <= scroll_off || tab_current < tab_count - scroll_off
+        let tab.flag .= '>' . last_tab_space
       endif
     endif
   endwhile
 
   " final ouput
   unlet i
-  for i in l:tabLineTabs
+  for i in l:tabs
     let tabnr = i.n
 
     let split = ''
     if strlen(i.split) > 0
-      if tabnr == tabSel
+      if tabnr == tab_current
         let split = '%#TabLineSplitNrSel#' . i.split .'%#TabLineSel#'
       else
         let split = '%#TabLineSplitNr#' . i.split .'%#TabLine#'
@@ -149,19 +149,19 @@ function! tabline#build() "{{{
 
     let text = ' ' . split . i.flag . i.filename . ' '
 
-    if i.n == l:tabLineTabs[-1].n
-        if match(i.flag, '>\d\+') > -1 || i.n < tabCount
-        let lastTabSpace = matchstr(i.flag, '>\zs\d\+')
+    if i.n == l:tabs[-1].n
+        if match(i.flag, '>\d\+') > -1 || i.n < tab_count
+        let last_tab_space = matchstr(i.flag, '>\zs\d\+')
         let i.flag = substitute(i.flag, '>\d\+', '', '')
-        if lastTabSpace <= strlen(i.n)
-          if lastTabSpace == 0
+        if last_tab_space <= strlen(i.n)
+          if last_tab_space == 0
             let s = strpart(s, 0, strlen(s) - 1)
           endif
           let s .= '%#TabLineMore#>'
           continue
         else
           let text = ' ' . i.split . i.flag . i.filename . ' '
-          let text = StrCrop(text, (lastTabSpace - strlen(i.n) - 1), '~') . '%#TabLineMore#>'
+          let text = s:string_truncate(text, (last_tab_space - strlen(i.n) - 1), '~') . '%#TabLineMore#>'
           let text = substitute(text, ' ' . i.split, ' ' . split, '')
         endif
         endif
@@ -169,7 +169,7 @@ function! tabline#build() "{{{
 
     let s .= '%' . tabnr . 'T'  " start of tab N
 
-    if tabnr == tabSel
+    if tabnr == tab_current
       let s .= '%#TabLineNrSel#' . tabnr . '%#TabLineSel#'
     else
       let s .= '%#TabLineNr#' . tabnr . '%#TabLine#'
@@ -180,15 +180,15 @@ function! tabline#build() "{{{
   endfor
 
   let s .= '%#TabLineFill#%T'
-  if exists('s:tabLineResult') && s:tabLineResult !=# s
-    let s:tabLineNeedRedraw = 1
+  if exists('s:result_string') && s:result_string !=# s
+    let s:dirty = 1
   endif
-  let s:tabLineResult = s
+  let s:result_string = s
   return s
 endfunction "}}}
 
 function! tabline#tabs() "{{{
-  return s:tabLineTabs
+  return s:tabs
 endfunction "}}}
 
 " }}} Main Functions
@@ -201,17 +201,54 @@ function! s:option(key) "{{{
 endfunction "}}}
 
 
-function! s:CalcTabLength(tab)
-  return strlen(a:tab.n) + 2 + strlen(a:tab.split) + strlen(a:tab.flag) + StrWidth(a:tab.filename)
-endfunction
+function! s:tab_length(tab) "{{{
+  return strlen(a:tab.n) + 2 + strlen(a:tab.split) + strlen(a:tab.flag) + s:string_width(a:tab.filename)
+endfunction "}}}
 
 
-function! s:TabLineTotalLength(dict)
+function! s:total_length(dict) "{{{
   let length = 0
   for i in (a:dict)
-    let length += strlen(i.n) + 2 + strlen(i.split) + strlen(i.flag) + StrWidth(i.filename)
+    let length += strlen(i.n) + 2 + strlen(i.split) + strlen(i.flag) + s:string_width(i.filename)
   endfor
   return length
-endfunction
+endfunction "}}}
+
+
+function! s:string_width(string) "{{{
+  if exists('*strwidth')
+    return strwidth(a:string)
+  else
+    let strlen = strlen(a:string)
+    let mstrlen = strlen(substitute(a:string, ".", "x", "g"))
+    if strlen == mstrlen
+      return strlen
+    else
+      " NOTE: do nothing for multibyte characters, can be incorrect
+      return strlen
+    endif
+  endif
+endfunction "}}}
+
+
+function! s:string_truncate(string, len, ...) "{{{
+  let pad_char = a:0 > 0 ? a:1 : ' '
+  if exists('*strwidth')
+    let text = substitute(a:string, '\%>' . a:len . 'c.*', '', '')
+    let remain_chars = split(substitute(a:string, text, '', ''), '\zs')
+    while strwidth(text) < a:len
+      let longer = len(remain_chars) > 0 ? (text . remove(remain_chars, 0)) : text
+      if strwidth(longer) < a:len
+        let text = longer
+      else
+        let text .= pad_char
+      endif
+    endwhile
+    return text
+  else
+    " NOTE: do nothing for multibyte characters, can be incorrect
+    return substitute(a:string, '\%>' . a:len . 'c.*', '', '')
+  endif
+endfunction "}}}
 
 " }}} Utils
