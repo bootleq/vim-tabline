@@ -41,5 +41,34 @@ tabline#tabs()                                                *tabline#tabs()*
 ==============================================================================
 CONFIGURATION                                          *tabline-configuration*
 
+Highlight Groups                                    *tabling-highlight-groups*
+
+This plugin takes below highlight groups for color customization:
+
+TabLine
+  None-active tab page label. |hi-Tabline|
+
+TabLineSel
+  Current active tab page label. |hi-TablineSel|
+
+TabLineFill
+  Exclude tab labels, the spare space of tabline. |hl-TabLineFill|
+
+TabLineNr                                                  *tabline-TabLineNr*
+  Tab number.
+
+TabLineNrSel                                            *tabline-TabLineNrSel*
+  Tab number, for current active tab.
+
+TabLineSplitNr                                        *tabline-TabLineSplitNr*
+  Number of splited windows.
+
+TabLineSplitNrSel                                  *tabline-TabLineSplitNrSel*
+  Number of splited windows, for current active tab.
+
+TabLineMore                                              *tabline-TabLineMore*
+  When tabline overflows (too many tabs), a ">" label will appear at the end
+  of current visible part.  Use this group to color the label.
+
 ==============================================================================
 vim:tw=78:fo=tcroq2mM:et:sts=2:sw=2:ft=help:norl:
