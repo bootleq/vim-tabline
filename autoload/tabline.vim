@@ -150,7 +150,7 @@ function! tabline#build() "{{{
     let text = ' ' . split . i.flag . i.filename . ' '
 
     if i.n == l:tabs[-1].n
-        if match(i.flag, '>\d\+') > -1 || i.n < tab_count
+      if match(i.flag, '>\d\+') > -1 || i.n < tab_count
         let last_tab_space = matchstr(i.flag, '>\zs\d\+')
         let i.flag = substitute(i.flag, '>\d\+', '', '')
         if last_tab_space <= strlen(i.n)
@@ -164,7 +164,7 @@ function! tabline#build() "{{{
           let text = s:string_truncate(text, (last_tab_space - strlen(i.n) - 1), '~') . '%#TabLineMore#>'
           let text = substitute(text, ' ' . i.split, ' ' . split, '')
         endif
-        endif
+      endif
     endif
 
     let s .= '%' . tabnr . 'T'  " start of tab N
