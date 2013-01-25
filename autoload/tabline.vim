@@ -34,47 +34,14 @@ function! tabline#build() "{{{
   let ellipsis_text          = s:option('ellipsis_text')
   let nofile_text            = s:option('nofile_text')
   let new_file_text          = s:option('new_file_text')
-  let modified_text          = s:option('modified_text')
 
   let s:tabs = []
 
   let tab_count = tabpagenr('$')
+  let s:tab_count = tab_count
   let tab_current = tabpagenr()
 
-  " fill s:tabs with {n, filename, split, flag} for each tab
-  for i in range(tab_count)
-    let tabnr = i + 1
-    let bufnr = tabpagebuflist(tabnr)[tabpagewinnr(tabnr) - 1]
-
-    let filename = bufname(bufnr)
-    let filename = fnamemodify(filename, ':p:t')
-    let buftype = getbufvar(bufnr, '&buftype')
-    if filename == ''
-      if buftype == 'nofile'
-        let filename .= nofile_text
-      else
-        let filename .= new_file_text
-      endif
-    endif
-
-    let window_count = tabpagewinnr(tabnr, '$')
-    if window_count > 1
-      let split = window_count
-    else
-      let split = ''
-    endif
-
-    let flag = ''
-    if getbufvar(bufnr, '&modified')
-      let flag .= modified_text
-    endif
-
-    if strlen(flag) > 0 || strlen(split) > 0
-      let flag .= ' '
-    endif
-
-    call add(s:tabs, {'n': tabnr, 'split': split, 'flag': flag, 'filename': filename})
-  endfor
+  call s:parse_tabs()
 
   " variables for final oupout
   let s = ''
@@ -83,7 +50,6 @@ function! tabline#build() "{{{
   " overflow adjustment
   " 1. apply min/max tab_width option
   if s:total_length(l:tabs) > &columns
-    unlet i
     for i in l:tabs
       let tab_length = s:tab_length(i)
       if tab_length < tab_min_width
@@ -100,7 +66,6 @@ function! tabline#build() "{{{
   if divide_equally
     if s:total_length(l:tabs) > &columns
       let divided_width = max([tab_min_width, tab_min_shrinked_width, &columns / tab_count, s:string_width(ellipsis_text)])
-      unlet i
       for i in l:tabs
         let tab_length = s:tab_length(i)
         if tab_length > divided_width
@@ -136,7 +101,6 @@ function! tabline#build() "{{{
   endwhile
 
   " final ouput
-  unlet i
   for i in l:tabs
     let tabnr = i.n
 
@@ -192,6 +156,44 @@ endfunction "}}}
 
 function! tabline#tabs() "{{{
   return s:tabs
+endfunction "}}}
+
+
+function! s:parse_tabs() "{{{
+  " fill s:tabs with {n, filename, split, flag} for each tab
+  for i in range(s:tab_count)
+    let tabnr = i + 1
+    let bufnr = tabpagebuflist(tabnr)[tabpagewinnr(tabnr) - 1]
+
+    let filename = bufname(bufnr)
+    let filename = fnamemodify(filename, ':p:t')
+    let buftype = getbufvar(bufnr, '&buftype')
+    if filename == ''
+      if buftype == 'nofile'
+        let filename .= nofile_text
+      else
+        let filename .= new_file_text
+      endif
+    endif
+
+    let window_count = tabpagewinnr(tabnr, '$')
+    if window_count > 1
+      let split = window_count
+    else
+      let split = ''
+    endif
+
+    let flag = ''
+    if getbufvar(bufnr, '&modified')
+      let flag .= s:option('modified_text')
+    endif
+
+    if strlen(flag) > 0 || strlen(split) > 0
+      let flag .= ' '
+    endif
+
+    call add(s:tabs, {'n': tabnr, 'split': split, 'flag': flag, 'filename': filename})
+  endfor
 endfunction "}}}
 
 " }}} Main Functions
