@@ -44,9 +44,7 @@ function! tabline#build() "{{{
   " fill s:tabs with {n, filename, split, flag} for each tab
   for i in range(tab_count)
     let tabnr = i + 1
-    let buflist = tabpagebuflist(tabnr)
-    let winnr = tabpagewinnr(tabnr)
-    let bufnr = buflist[winnr - 1]
+    let bufnr = tabpagebuflist(tabnr)[tabpagewinnr(tabnr) - 1]
 
     let filename = bufname(bufnr)
     let filename = fnamemodify(filename, ':p:t')
@@ -58,15 +56,19 @@ function! tabline#build() "{{{
         let filename .= new_file_text
       endif
     endif
-    let split = ''
+
     let window_count = tabpagewinnr(tabnr, '$')
-    if window_count > 1   " has split windows
-      let split .= window_count
+    if window_count > 1
+      let split = window_count
+    else
+      let split = ''
     endif
+
     let flag = ''
-    if getbufvar(bufnr, '&modified')  " modified
+    if getbufvar(bufnr, '&modified')
       let flag .= modified_text
     endif
+
     if strlen(flag) > 0 || strlen(split) > 0
       let flag .= ' '
     endif
