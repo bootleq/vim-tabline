@@ -45,12 +45,12 @@ function! tabline#build() "{{{
 
   " variables for final oupout
   let s = ''
-  let l:tabs = deepcopy(s:tabs)
+  let tabs = deepcopy(s:tabs)
 
   " overflow adjustment
   " 1. apply min/max tab_width option
-  if s:total_length(l:tabs) > &columns
-    for i in l:tabs
+  if s:total_length(tabs) > &columns
+    for i in tabs
       let tab_length = s:tab_length(i)
       if tab_length < tab_min_width
         let i.filename .= repeat(' ', tab_min_width - tab_length)
@@ -64,9 +64,9 @@ function! tabline#build() "{{{
   endif
   " 2. try divide each tab equal-width
   if divide_equally
-    if s:total_length(l:tabs) > &columns
+    if s:total_length(tabs) > &columns
       let divided_width = max([tab_min_width, tab_min_shrinked_width, &columns / tab_count, s:string_width(ellipsis_text)])
-      for i in l:tabs
+      for i in tabs
         let tab_length = s:tab_length(i)
         if tab_length > divided_width
           let i.filename = s:string_truncate(i.filename, divided_width - s:string_width(ellipsis_text), '~') . ellipsis_text
@@ -79,18 +79,18 @@ function! tabline#build() "{{{
   let t = tab_count - 1
   let rhs_tab_start = min([tab_current - 1, tab_current - scroll_off])
   while t >= max([rhs_tab_start, 0])
-    let tab = l:tabs[t]
+    let tab = tabs[t]
     let tab_length = s:tab_length(tab)
     let rhs_width += tab_length
     let t -= 1
   endwhile
   while rhs_width >= &columns
-    let tab = l:tabs[-1]
+    let tab = tabs[-1]
     let tab_length = s:tab_length(tab)
     let last_tab_space = &columns - (rhs_width - tab_length)
     let rhs_width -= tab_length
     if rhs_width > &columns
-      call remove(l:tabs, -1)
+      call remove(tabs, -1)
     else
       " add special flag (will be removed later) indicating that how many
       " columns could be used for last displayed tab.
@@ -101,7 +101,7 @@ function! tabline#build() "{{{
   endwhile
 
   " final ouput
-  for i in l:tabs
+  for i in tabs
     let tabnr = i.n
 
     let split = ''
@@ -115,7 +115,7 @@ function! tabline#build() "{{{
 
     let text = ' ' . split . i.flag . i.filename . ' '
 
-    if i.n == l:tabs[-1].n
+    if i.n == tabs[-1].n
       if match(i.flag, '>\d\+') > -1 || i.n < tab_count
         let last_tab_space = matchstr(i.flag, '>\zs\d\+')
         let i.flag = substitute(i.flag, '>\d\+', '', '')
