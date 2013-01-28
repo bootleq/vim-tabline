@@ -32,8 +32,6 @@ function! tabline#build() "{{{
   let scroll_off             = s:option('scroll_off')
   let divide_equally         = s:option('divide_equally')
   let ellipsis_text          = s:option('ellipsis_text')
-  let nofile_text            = s:option('nofile_text')
-  let new_file_text          = s:option('new_file_text')
 
   let s:tabs = []
 
@@ -170,9 +168,9 @@ function! s:parse_tabs() "{{{
     let buftype = getbufvar(bufnr, '&buftype')
     if filename == ''
       if buftype == 'nofile'
-        let filename .= nofile_text
+        let filename .= s:option('nofile_text')
       else
-        let filename .= new_file_text
+        let filename .= s:option('new_file_text')
       endif
     endif
 
