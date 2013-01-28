@@ -35,14 +35,13 @@ function! tabline#build() "{{{
 
   let s:tabs = []
 
-  let tab_count = tabpagenr('$')
-  let s:tab_count = tab_count
-  let tab_current = tabpagenr()
+  let s:tab_count = tabpagenr('$')
+  let s:tab_current = tabpagenr()
+  let s:output = ''
 
   call s:parse_tabs()
 
   " variables for final oupout
-  let s = ''
   let tabs = deepcopy(s:tabs)
 
   " overflow adjustment
@@ -63,7 +62,7 @@ function! tabline#build() "{{{
   " 2. try divide each tab equal-width
   if divide_equally
     if s:total_length(tabs) > &columns
-      let divided_width = max([tab_min_width, tab_min_shrinked_width, &columns / tab_count, s:string_width(ellipsis_text)])
+      let divided_width = max([tab_min_width, tab_min_shrinked_width, &columns / s:tab_count, s:string_width(ellipsis_text)])
       for i in tabs
         let tab_length = s:tab_length(i)
         if tab_length > divided_width
@@ -74,8 +73,8 @@ function! tabline#build() "{{{
   endif
   " 3. ensure visibility of current tab
   let rhs_width = 0
-  let t = tab_count - 1
-  let rhs_tab_start = min([tab_current - 1, tab_current - scroll_off])
+  let t = s:tab_count - 1
+  let rhs_tab_start = min([s:tab_current - 1, s:tab_current - scroll_off])
   while t >= max([rhs_tab_start, 0])
     let tab = tabs[t]
     let tab_length = s:tab_length(tab)
@@ -92,7 +91,7 @@ function! tabline#build() "{{{
     else
       " add special flag (will be removed later) indicating that how many
       " columns could be used for last displayed tab.
-      if tab_current <= scroll_off || tab_current < tab_count - scroll_off
+      if s:tab_current <= scroll_off || s:tab_current < s:tab_count - scroll_off
         let tab.flag .= '>' . last_tab_space
       endif
     endif
@@ -104,7 +103,7 @@ function! tabline#build() "{{{
 
     let split = ''
     if strlen(i.split) > 0
-      if tabnr == tab_current
+      if tabnr == s:tab_current
         let split = '%#TabLineSplitNrSel#' . i.split .'%#TabLineSel#'
       else
         let split = '%#TabLineSplitNr#' . i.split .'%#TabLine#'
@@ -114,14 +113,14 @@ function! tabline#build() "{{{
     let text = ' ' . split . i.flag . i.filename . ' '
 
     if i.n == tabs[-1].n
-      if match(i.flag, '>\d\+') > -1 || i.n < tab_count
+      if match(i.flag, '>\d\+') > -1 || i.n < s:tab_count
         let last_tab_space = matchstr(i.flag, '>\zs\d\+')
         let i.flag = substitute(i.flag, '>\d\+', '', '')
         if last_tab_space <= strlen(i.n)
           if last_tab_space == 0
-            let s = strpart(s, 0, strlen(s) - 1)
+            let s:output = strpart(s:output, 0, strlen(s:output) - 1)
           endif
-          let s .= '%#TabLineMore#>'
+          let s:output .= '%#TabLineMore#>'
           continue
         else
           let text = ' ' . i.split . i.flag . i.filename . ' '
@@ -131,24 +130,24 @@ function! tabline#build() "{{{
       endif
     endif
 
-    let s .= '%' . tabnr . 'T'  " start of tab N
+    let s:output .= '%' . tabnr . 'T'  " start of tab N
 
-    if tabnr == tab_current
-      let s .= '%#TabLineNrSel#' . tabnr . '%#TabLineSel#'
+    if tabnr == s:tab_current
+      let s:output .= '%#TabLineNrSel#' . tabnr . '%#TabLineSel#'
     else
-      let s .= '%#TabLineNr#' . tabnr . '%#TabLine#'
+      let s:output .= '%#TabLineNr#' . tabnr . '%#TabLine#'
     endif
 
-    let s .= text
+    let s:output .= text
 
   endfor
 
-  let s .= '%#TabLineFill#%T'
-  if exists('s:result_string') && s:result_string !=# s
+  let s:output .= '%#TabLineFill#%T'
+  if exists('s:result_string') && s:result_string !=# s:output
     let s:dirty = 1
   endif
-  let s:result_string = s
-  return s
+  let s:result_string = s:output
+  return s:output
 endfunction "}}}
 
 
