@@ -28,9 +28,7 @@ function! tabline#build() "{{{
   " settings
   let tab_min_width          = s:option('tab_min_width')
   let tab_max_width          = s:option('tab_max_width')
-  let tab_min_shrinked_width = s:option('tab_min_shrinked_width')
   let scroll_off             = s:option('scroll_off')
-  let divide_equally         = s:option('divide_equally')
   let ellipsis_text          = s:option('ellipsis_text')
 
   let s:tabs = []
@@ -47,85 +45,89 @@ function! tabline#build() "{{{
   " overflow adjustment
   " 1. apply min/max tab_width option
   if s:total_length(tabs) > &columns
-    for i in tabs
-      let tab_length = s:tab_length(i)
+    for tab in tabs
+      let tab_length = s:tab_length(tab)
       if tab_length < tab_min_width
-        let i.filename .= repeat(' ', tab_min_width - tab_length)
+        let tab.filename .= repeat(' ', tab_min_width - tab_length)
       elseif tab_max_width > 0 && tab_length > tab_max_width
-        let reserve = tab_length - s:string_width(i.filename) + s:string_width(ellipsis_text)
-        if tab_max_width > reserve
-          let i.filename = s:string_truncate(i.filename, (tab_max_width - reserve), '~') . ellipsis_text
+        let least_visible = tab_length - s:string_width(tab.filename) + s:string_width(ellipsis_text)
+        if tab_max_width > least_visible
+          let tab.filename = s:string_truncate(tab.filename, (tab_max_width - least_visible), '~') . ellipsis_text
         endif
       endif
     endfor
   endif
+
   " 2. try divide each tab equal-width
-  if divide_equally
+  if s:option('divide_equally')
     if s:total_length(tabs) > &columns
-      let divided_width = max([tab_min_width, tab_min_shrinked_width, &columns / s:tab_count, s:string_width(ellipsis_text)])
-      for i in tabs
-        let tab_length = s:tab_length(i)
-        if tab_length > divided_width
-          let i.filename = s:string_truncate(i.filename, divided_width - s:string_width(ellipsis_text), '~') . ellipsis_text
+      let target_length = max([tab_min_width, s:option('tab_min_shrinked_width'), &columns / s:tab_count, s:string_width(ellipsis_text)])
+      for tab in tabs
+        let tab_length = s:tab_length(tab)
+        if tab_length > target_length
+          let tab.filename = s:string_truncate(tab.filename, target_length - s:string_width(ellipsis_text), '~') . ellipsis_text
         endif
       endfor
     endif
   endif
+
   " 3. ensure visibility of current tab
-  let rhs_width = 0
-  let t = s:tab_count - 1
-  let rhs_tab_start = min([s:tab_current - 1, s:tab_current - scroll_off])
-  while t >= max([rhs_tab_start, 0])
-    let tab = tabs[t]
+  let rhs_length = 0
+  let rhs_iter = s:tab_count - 1
+  let rhs_start = min([s:tab_current - 1, s:tab_current - scroll_off])
+  while rhs_iter >= max([rhs_start, 0])
+    let tab = tabs[rhs_iter]
     let tab_length = s:tab_length(tab)
-    let rhs_width += tab_length
-    let t -= 1
+    let rhs_length += tab_length
+    let rhs_iter -= 1
   endwhile
-  while rhs_width >= &columns
+
+  while rhs_length >= &columns
     let tab = tabs[-1]
     let tab_length = s:tab_length(tab)
-    let last_tab_space = &columns - (rhs_width - tab_length)
-    let rhs_width -= tab_length
-    if rhs_width > &columns
+    let last_tab_length = &columns - (rhs_length - tab_length)
+    let rhs_length -= tab_length
+    if rhs_length > &columns
       call remove(tabs, -1)
     else
       " add special flag (will be removed later) indicating that how many
       " columns could be used for last displayed tab.
       if s:tab_current <= scroll_off || s:tab_current < s:tab_count - scroll_off
-        let tab.flag .= '>' . last_tab_space
+        let tab.flag .= '>' . last_tab_length
       endif
     endif
   endwhile
 
   " final ouput
-  for i in tabs
-    let tabnr = i.n
-
+  for tab in tabs
+    let tabnr = tab.n
     let split = ''
-    if strlen(i.split) > 0
+    let text = ''
+
+    if strlen(tab.split) > 0
       if tabnr == s:tab_current
-        let split = '%#TabLineSplitNrSel#' . i.split .'%#TabLineSel#'
+        let split = '%#TabLineSplitNrSel#' . tab.split .'%#TabLineSel#'
       else
-        let split = '%#TabLineSplitNr#' . i.split .'%#TabLine#'
+        let split = '%#TabLineSplitNr#' . tab.split .'%#TabLine#'
       endif
     endif
 
-    let text = ' ' . split . i.flag . i.filename . ' '
+    let text = ' ' . split . tab.flag . tab.filename . ' '
 
-    if i.n == tabs[-1].n
-      if match(i.flag, '>\d\+') > -1 || i.n < s:tab_count
-        let last_tab_space = matchstr(i.flag, '>\zs\d\+')
-        let i.flag = substitute(i.flag, '>\d\+', '', '')
-        if last_tab_space <= strlen(i.n)
-          if last_tab_space == 0
+    if tab.n == tabs[-1].n
+      if match(tab.flag, '>\d\+') > -1 || tab.n < s:tab_count
+        let last_tab_length = matchstr(tab.flag, '>\zs\d\+')
+        let tab.flag = substitute(tab.flag, '>\d\+', '', '')
+        if last_tab_length <= strlen(tab.n)
+          if last_tab_length == 0
             let s:output = strpart(s:output, 0, strlen(s:output) - 1)
           endif
           let s:output .= '%#TabLineMore#>'
           continue
         else
-          let text = ' ' . i.split . i.flag . i.filename . ' '
-          let text = s:string_truncate(text, (last_tab_space - strlen(i.n) - 1), '~') . '%#TabLineMore#>'
-          let text = substitute(text, ' ' . i.split, ' ' . split, '')
+          let text = ' ' . tab.split . tab.flag . tab.filename . ' '
+          let text = s:string_truncate(text, (last_tab_length - strlen(tab.n) - 1), '~') . '%#TabLineMore#>'
+          let text = substitute(text, ' ' . tab.split, ' ' . split, '')
         endif
       endif
     endif
@@ -158,8 +160,8 @@ endfunction "}}}
 
 function! s:parse_tabs() "{{{
   " fill s:tabs with {n, filename, split, flag} for each tab
-  for i in range(s:tab_count)
-    let tabnr = i + 1
+  for tab in range(s:tab_count)
+    let tabnr = tab + 1
     let bufnr = tabpagebuflist(tabnr)[tabpagewinnr(tabnr) - 1]
 
     let filename = bufname(bufnr)
