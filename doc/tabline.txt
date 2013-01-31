@@ -12,6 +12,8 @@ CONTENTS                                                    *tabline-contents*
     Usage  ................................. |tabline-usage|
     Functions  ....................... ..... |tabline-functions|
     Configuration  ......................... |tabline-configuration|
+      Options  ............................. |tabline-options|
+      Highlight groups  .................... |tabline-highlight-groups|
 
 ==============================================================================
 INTRODUCTION                                            *tabline-introduction*
@@ -41,7 +43,56 @@ tabline#tabs()                                                *tabline#tabs()*
 ==============================================================================
 CONFIGURATION                                          *tabline-configuration*
 
-Highlight Groups                                    *tabling-highlight-groups*
+------------------------------------------------------------------------------
+Options                                                      *tabline-options*
+
+You can set below options in g: scope (|g:var|), otherwise their internal (s:)
+default values will be used.
+
+tab_min_width          (default: 0) ~
+
+  Minimal width of each tab.
+
+tab_max_width          (default: 40) ~
+
+  Max width of each tab.
+  If set to 0, max width goes unlimited.
+
+divide_equally         (default: 0) ~
+
+  When tabline is too long, try to set each tab in same width.
+  Set to 1 to enable this feature.
+
+tab_min_shrinked_width (default: 15) ~
+
+  When divide_equally is on, each divided tab must be wider than this value.
+
+scroll_off             (default: 5) ~
+
+  When tabline is too long, this defines the minimal number of tabs to keep
+  visible before/after current tab.
+
+ellipsis_text          (default: "…") ~
+
+  When tab label was truncated, display this string for clipped part.
+
+nofile_text            (default: "[Scratch]") ~
+
+  When |bufname()| (buffer name) is empty, and 'buftype' is "nofile", set tab
+  label to this string.
+
+new_file_text          (default: "[New]") ~
+
+  When buffer name is empty, and buffer type is other than "nofile", set tab
+  label to this string.
+
+modified_text          (default: "+") ~
+
+  When 'modified' is on, add this string to tab label.
+
+
+------------------------------------------------------------------------------
+Highlight Groups                                    *tabline-highlight-groups*
 
 This plugin takes below highlight groups for color customization:
 
