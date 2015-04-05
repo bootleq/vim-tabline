@@ -15,12 +15,6 @@ Screenshot
 ![basic demo][]
 
 
-Status
-======
-
-Work in process, everything may change.
-
-
 Similar Projects
 ================
 
