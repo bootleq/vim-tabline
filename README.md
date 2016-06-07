@@ -19,8 +19,10 @@ Similar Projects
 ================
 
 - [taboo][] by @gcmt
+- [tabulous][] by @webdevel
 
 
 ['tabline']: http://vimdoc.sourceforge.net/htmldoc/options.html#%27tabline%27
 [taboo]: https://github.com/gcmt/taboo.vim
+[tabulous]: https://github.com/webdevel/tabulous
 [basic demo]: https://lh3.googleusercontent.com/-B_rqhR4JVY0/UQx32RGtDpI/AAAAAAAAB3E/rL1buFxcQS8/s1600/vim-tabline-130202.png
