@@ -8,6 +8,7 @@ let s:DEFAULT_OPTIONS = {
       \ 'divide_equally': 0,
       \ 'ellipsis_text': '…',
       \ 'nofile_text': '[Scratch]',
+      \ 'prompt_text': '[Prompt]',
       \ 'new_file_text': '[New]',
       \ 'modified_text': '+'
       \ }
@@ -170,6 +171,8 @@ function! s:parse_tabs() "{{{
     if filename == ''
       if buftype == 'nofile'
         let filename .= s:option('nofile_text')
+      elseif buftype == 'prompt'
+        let filename .= s:option('prompt_text')
       else
         let filename .= s:option('new_file_text')
       endif
