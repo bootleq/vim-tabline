@@ -10,13 +10,13 @@ Tab pages line (['tabline'][], not GUI tab labels) customization.
 
 
 Screenshot
-==========
+----------
 
 ![basic demo][]
 
 
 Similar Projects
-================
+----------------
 
 - [taboo][] by @gcmt
 - [tabulous][] by @webdevel
