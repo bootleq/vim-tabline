@@ -8,7 +8,8 @@ let s:DEFAULT_OPTIONS = {
       \ 'divide_equally': 0,
       \ 'ellipsis_text': '…',
       \ 'nofile_text': '[Scratch]',
-      \ 'prompt_text': '[Prompt]',
+      \ 'prompt_text': '',
+      \ 'qf_text': '',
       \ 'new_file_text': '[New]',
       \ 'modified_text': '+'
       \ }
@@ -173,9 +174,15 @@ function! s:parse_tabs() "{{{
         let filename .= s:option('nofile_text')
       elseif buftype == 'prompt'
         let filename .= s:option('prompt_text')
+      elseif buftype == 'quickfix'
+        let filename .= s:option('qf_text')
       else
         let filename .= s:option('new_file_text')
       endif
+    endif
+
+    if filename == ''
+      let filename .= s:special_buffer_name(bufnr)
     endif
 
     let window_count = tabpagewinnr(tabnr, '$')
@@ -210,6 +217,24 @@ endfunction "}}}
 
 function! s:tab_length(tab) "{{{
   return strlen(a:tab.n) + 2 + strlen(a:tab.split) + strlen(a:tab.flag) + s:string_width(a:tab.filename)
+endfunction "}}}
+
+
+" Like vim `buf_spname` function, get names like `[Prompt]` which only appears
+" in `:ls` and a few commands, but no regular api to obtain.
+" https://github.com/vim/vim/blob/0ef9a5c094/src/buffer.c#L5865
+function! s:special_buffer_name(bufnr) "{{{
+  let buffers = execute('buffers!')->split('\n')
+  let buf = ''
+
+  for line in buffers
+    if match(line, '\v^\s*' . a:bufnr . '\D') > -1
+      let buf = matchstr(line, '\v"\zs.+\ze"')
+      break
+    endif
+  endfor
+
+  return buf
 endfunction "}}}
 
 
