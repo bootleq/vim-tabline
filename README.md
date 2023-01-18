@@ -15,6 +15,26 @@ Screenshot
 ![basic demo][]
 
 
+Options
+-------
+
+Option variables and their default values:
+
+```vim
+let g:tab_min_width          = 0
+let g:tab_max_width          = 40           " label longer then this will be chopped
+let g:tab_min_shrinked_width = 15           " when space is not enough, how much a tab can be shrinked
+let g:scroll_off             = 5
+let g:divide_equally         = 0            " boolean, try divide each tab equal-width
+let g:ellipsis_text          = '…'          " when chopped tab, use this as replacement text
+let g:nofile_text            = '[Scratch]'  " label for 'nofile' buffer
+let g:prompt_text            = ''           " label for 'prompt' buffer, leave blank will auto grab from `:ls!`
+let g:qf_text                = ''
+let g:new_file_text          = '[New]'      " when no filename, no matched buftype, will fallback to this
+let g:modified_text          = '+'          " Flag to indicate the file is modified
+```
+
+
 Similar Projects
 ----------------
 
