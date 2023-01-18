@@ -164,7 +164,8 @@ function! s:parse_tabs() "{{{
   " fill s:tabs with {n, filename, split, flag} for each tab
   for tab in range(s:tab_count)
     let tabnr = tab + 1
-    let bufnr = tabpagebuflist(tabnr)[tabpagewinnr(tabnr) - 1]
+    let bufnrs = tabpagebuflist(tabnr)
+    let bufnr = bufnrs[tabpagewinnr(tabnr) - 1]
 
     let filename = bufname(bufnr)
     let filename = fnamemodify(filename, ':p:t')
@@ -185,7 +186,7 @@ function! s:parse_tabs() "{{{
       let filename .= s:special_buffer_name(bufnr)
     endif
 
-    let window_count = tabpagewinnr(tabnr, '$')
+    let window_count = copy(bufnrs)->filter({ idx, val -> val->buflisted() })->len()
     if window_count > 1
       let split = window_count
     else
@@ -193,7 +194,8 @@ function! s:parse_tabs() "{{{
     endif
 
     let flag = ''
-    if getbufvar(bufnr, '&modified')
+    let listed_buf = buflisted(bufnr) ? bufnr : expand('#')
+    if getbufvar(listed_buf, '&modified')
       let flag .= s:option('modified_text')
     endif
 
