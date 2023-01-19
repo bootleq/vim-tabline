@@ -35,6 +35,23 @@ g:modified_text          = '+'          " Flag to indicate the file is modified
 ```
 
 
+Highlight Groups
+----------------
+
+Group names and example highlight setting:
+
+```vim
+hi TabLine           cterm=underline ctermfg=15    ctermbg=242   gui=underline        guibg=#6c6c6c guifg=White
+hi TabLineSel        cterm=bold      gui=NONE      guifg=White
+hi TabLineNr         cterm=underline ctermbg=238   gui=underline guibg=#444444
+hi TabLineNrSel      cterm=bold      ctermfg=45    guifg=#00d7ff
+hi TabLineFill       cterm=reverse   gui=reverse
+hi TabLineMore       cterm=underline ctermfg=White ctermbg=236   gui=underline        guifg=White   guibg=#303030
+hi TabLineSplitNr    cterm=underline ctermfg=148   ctermbg=240   gui=underline,italic guifg=#afd700 guibg=#6c6c6c
+hi TabLineSplitNrSel cterm=NONE      ctermfg=148   ctermbg=236   gui=NONE,italic      guifg=#afd700 guibg=#303030
+```
+
+
 Similar Projects
 ----------------
 
