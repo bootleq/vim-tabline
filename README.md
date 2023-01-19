@@ -3,10 +3,10 @@ tabline.vim
 
 Tab pages line (['tabline'][], not GUI tab labels) customization.
 
-  - Change tab label text with tab number, buffer name, etc.
+  - Change tab label text with tab number, buffer name, .etc.
   - Tab min-width, max-width.
   - Extra color groups.
-  - Expose tabline info as a variable.
+  - Expose tabline info as a variable (`tabline#tabs()`).
 
 
 Screenshot
@@ -24,7 +24,7 @@ Option variables and their default values:
 g:tab_min_width          = 0
 g:tab_max_width          = 40           " label longer then this will be chopped
 g:tab_min_shrinked_width = 15           " when space is not enough, how much a tab can be shrinked
-g:scroll_off             = 5
+g:scroll_off             = 5            " how many tabs should appear before/after current tab
 g:divide_equally         = 0            " boolean, try divide each tab equal-width
 g:ellipsis_text          = '…'          " when chopped tab, use this as replacement text
 g:nofile_text            = '[Scratch]'  " label for 'nofile' buffer
