@@ -11,7 +11,8 @@ let s:DEFAULT_OPTIONS = {
       \ 'prompt_text': '',
       \ 'qf_text': '',
       \ 'new_file_text': '[New]',
-      \ 'modified_text': '+'
+      \ 'modified_text': '+',
+      \ 'ignore_win_types': ['popup']
       \ }
 let s:OPTION_PREFIX = 'tabline_'
 lockvar! s:OPTION_PREFIX s:DEFAULT_OPTIONS
@@ -166,6 +167,8 @@ function! s:parse_tabs() "{{{
     let tabnr = tab + 1
     let bufnrs = tabpagebuflist(tabnr)
     let bufnr = bufnrs[tabpagewinnr(tabnr) - 1]
+    let winid = bufwinid(bufnr)
+    let wins = gettabinfo(tabnr)[0].windows
 
     let filename = bufname(bufnr)
     let filename = fnamemodify(filename, ':p:t')
@@ -186,7 +189,8 @@ function! s:parse_tabs() "{{{
       let filename .= s:special_buffer_name(bufnr)
     endif
 
-    let window_count = copy(bufnrs)->filter({ idx, val -> val->buflisted() })->len()
+    let ignore_types = s:option('ignore_win_types')
+    let window_count = copy(wins)->filter({ idx, val -> !s:wintype_in(ignore_types, val) })->len()
     if window_count > 1
       let split = window_count
     else
@@ -194,10 +198,9 @@ function! s:parse_tabs() "{{{
     endif
 
     let flag = ''
-    let listed_buf = buflisted(bufnr) ? bufnr : expand('#')
-    if getbufvar(listed_buf, '&modified')
-      let flag .= s:option('modified_text')
-    endif
+      if getbufvar(bufnr, '&modified') && !s:wintype_in(ignore_types, winid)
+        let flag .= s:option('modified_text')
+      endif
 
     if strlen(flag) > 0 || strlen(split) > 0
       let flag .= ' '
@@ -238,6 +241,11 @@ function! s:special_buffer_name(bufnr) "{{{
 
   return buf
 endfunction "}}}
+
+
+function! s:wintype_in(list, winid) abort " {{{
+  return index(a:list, win_gettype(a:winid)) > -1
+endfunction " }}}
 
 
 function! s:total_length(dict) "{{{

@@ -31,7 +31,8 @@ g:nofile_text            = '[Scratch]'  " label for 'nofile' buffer
 g:prompt_text            = ''           " label for 'prompt' buffer, leave blank will auto grab from `:ls!`
 g:qf_text                = ''
 g:new_file_text          = '[New]'      " when no filename, no matched buftype, will fallback to this
-g:modified_text          = '+'          " Flag to indicate the file is modified
+g:modified_text          = '+'          " flag to indicate the file is modified
+g:ignore_win_types       = ['popup']    " window types not count as number of split and modified flag
 ```
 
 
